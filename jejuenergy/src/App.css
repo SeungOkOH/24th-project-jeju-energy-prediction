@@ -4,6 +4,7 @@
   text-align: center;
   font-family: "Nanum Gothic", sans-serif;
   background-color: #4c7380;
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -45,3 +46,4 @@ body {
   margin: 0;
   padding: 0;
 }
+

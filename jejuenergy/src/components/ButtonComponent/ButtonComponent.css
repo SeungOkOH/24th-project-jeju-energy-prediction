@@ -1,0 +1,56 @@
+.button-div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* main contents */
+.button-p {
+  align-self: start;
+  padding-left: 5vh;
+  font-size: 1rem;
+  font-weight: bolder;
+  margin-bottom : 2vh;
+}
+
+/* div */
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-right: 5vh;
+  padding-left: 5vh;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+/* each button */
+.button- {
+  width: 45vh;
+  border-radius: 10px;
+  border: none;
+  display: flex;
+  padding-top: 5px;
+  padding-left: 5px;
+  background-color: #d8e4e8;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* div */
+.button-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 내용. */
+.button-p1 {
+  margin: 0;
+  font-weight: bold;
+  align-self: flex-start;
+}
+
+.button-p2 {
+  margin: 0;
+  align-self: flex-start;
+  font-size: 12px;
+}
