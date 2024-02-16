@@ -16,16 +16,32 @@ function DemandComponent() {
     { time: "13:00 pm", demand: 100, solarGen: 20, windGen: 30 },
   ]);
   const [demandGraph, setDemandGraph] = useState("/solar_output.png");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState("");
+
+  //test 연결 됐는지
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/hello/");
+        console.log(response.data);
+        setLoading(response.data.message);
+      } catch (error) {
+        // Handle error
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // backend에서 데이터 받아오기
   // 조건 : solar + wind가 demand보다 크면
   // {time, demand, solarGen, windGen} 형태로 보내야함.
 
+  //바로 렌더링 안되면 버튼으로 바꿔보기..
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/alert-data");
+        const response = await axios.get("/alert-data");
         const newDataSets = response.data.map((item) => ({
           time: item.time,
           demand: item.demand,
