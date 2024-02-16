@@ -171,7 +171,6 @@ def convert_elec():
     plt.ylabel('Prediction')
     plt.title('Hourly Predictions')
     plt.savefig('Tomorrow_Solar_Energy(hourly).png')
-    plt.show()
 
 
 
