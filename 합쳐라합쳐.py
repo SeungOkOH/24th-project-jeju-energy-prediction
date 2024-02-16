@@ -10,3 +10,7 @@ wind_model_path = '/models/wind_model.pt'
 elec_model = torch.load(elec_model_path)
 solar_model = torch.load(solar_model_path)
 wind_model = torch.load(wind_model_path)
+
+elec = elec_model(data)
+solar = solar_model(data)
+wind = wind_model(data)
