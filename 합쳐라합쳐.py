@@ -1,4 +1,5 @@
 import tommorow_data_get
+import dataset_define
 import torch
 
 data_origin = tommorow_data_get.get_data()
@@ -11,6 +12,6 @@ elec_model = torch.load(elec_model_path)
 solar_model = torch.load(solar_model_path)
 wind_model = torch.load(wind_model_path)
 
-elec = elec_model(convert_elec(data_origin))
+elec = elec_model(data)
 solar = solar_model(data_solar)
 wind = wind_model(data_wind)
