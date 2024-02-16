@@ -26,12 +26,11 @@ labels_test_solar = pd.DataFrame({'label': [0] * len(features_test_solar)})
 test_dataset_solar = SunlightDataset(features_test_solar, labels_test_solar)
 test_loader_solar = DataLoader(test_dataset_solar, batch_size=1, shuffle=False)
 
-'''
 features_test_wind = convert_wind(data_origin)
 labels_test_wind = pd.DataFrame({'label': [0] * len(features_test_wind)})
 test_dataset_wind = Windpower_Dataset(features_test_wind, labels_test_wind)
 test_loader_wind = DataLoader(test_dataset_wind, batch_size=1, shuffle=False)
-'''
+
 # GPU를 사용할 경우
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -62,7 +61,7 @@ with torch.no_grad():
 
         for seq_idx in range(outputs.shape[-1]):
             y_pred_solar.append(outputs[:, seq_idx].item())
-'''
+
 # 풍력 데이터에 대한 예측
 y_pred_wind = []
 wind_model.eval()
@@ -76,8 +75,7 @@ with torch.no_grad():
 
         for seq_idx in range(outputs.shape[-1]):
             y_pred_wind.append(outputs[:, seq_idx].item())
-'''
+
 print(y_pred_elec)
 print(y_pred_solar)
-
-#print(y_pred_wind)
+print(y_pred_wind)
