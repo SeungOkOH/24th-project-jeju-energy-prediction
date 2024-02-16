@@ -2,9 +2,13 @@ import pandas as pd
 import urllib
 import urllib.request
 import json
+import datetime
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+ss = StandardScaler()
 
 def convert_elec(response):
-    
+    formatted_tomorrow = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     # 새로운 데이터프레임을 생성
     fcst_df = pd.DataFrame(columns=['Forecast_date', 'Forecast_hour', 'WindDirection', 'WindSpeed', 'Cloud', 'Rainfall', 'Humidity', 'Temperature'])
 
