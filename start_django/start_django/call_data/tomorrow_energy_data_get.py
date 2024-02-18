@@ -1,8 +1,11 @@
-import tommorow_data_get
+from .tommorow_data_get import get_data
 import torch
-from predictions.elec_prediction import convert_elec
-from predictions.solar_prediction import convert_solar
-from predictions.wind_prediction import convert_wind
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+from .predictions.elec_prediction import convert_elec
+from .predictions.solar_prediction import convert_solar
+from .predictions.wind_prediction import convert_wind
 
 from models import Windpower_MLP, LSTMwithAttn
 
@@ -10,7 +13,8 @@ from models import Windpower_MLP, LSTMwithAttn
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_energy_data():
-    tomorrow_df = tommorow_data_get.get_data()
+    tomorrow_df = get_data()
+    
 
     elec_model_path = 'models/elec_model.pt'
     solar_model_path = 'models/solar_model.pt'
