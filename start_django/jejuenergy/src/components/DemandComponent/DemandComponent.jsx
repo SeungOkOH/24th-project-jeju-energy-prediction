@@ -41,7 +41,7 @@ function DemandComponent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/alert-data");
+        const response = await axios.get("/alert_data/");
         const newDataSets = response.data.map((item) => ({
           time: item.time,
           demand: item.demand,
@@ -49,6 +49,7 @@ function DemandComponent() {
           windGen: item.windGen,
         }));
         setDataSets(newDataSets);
+        console.log(newDataSets);
       } catch (error) {
         // Handle error
       }
@@ -64,7 +65,7 @@ function DemandComponent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/fuel-data");
+        const response = await axios.get("/fuel_data/");
         const newDataSets = response.data.map((item) => ({
           time: item.time,
           demand: item.demand,
@@ -84,7 +85,7 @@ function DemandComponent() {
   useEffect(() => {
     const fetchGraphData = async () => {
       try {
-        const demandResponse = await axios.get("/demand_graph_url");
+        const demandResponse = await axios.get("/demand_graph/");
         setDemandGraph(demandResponse.data.image_url);
         setLoading(false);
       } catch (error) {

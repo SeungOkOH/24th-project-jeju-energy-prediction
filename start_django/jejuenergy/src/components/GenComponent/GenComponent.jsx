@@ -11,8 +11,8 @@ function GenComponent() {
   useEffect(() => {
     const fetchGraphData = async () => {
       try {
-        const solarResponse = await axios.get("/solar_graph_url");
-        const windResponse = await axios.get("/wind_graph_url");
+        const solarResponse = await axios.get("/solar_graph/");
+        const windResponse = await axios.get("/wind_graph/");
         setSolarGraph(solarResponse.data.image_url);
         setWindGraph(windResponse.data.image_url);
         setLoading(false);
