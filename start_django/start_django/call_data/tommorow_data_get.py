@@ -8,10 +8,11 @@ from datetime import date, timedelta
 
 def get_data():
     # 오늘 내일 날짜 불러오기
-    today = date.today()
+    today = date.today() - timedelta(days=1)
     formatted_today = today.strftime('%Y%m%d')
     tomorrow = today + timedelta(days=1)
     formatted_tomorrow = tomorrow.strftime('%Y%m%d')
+
 
     # 날씨 데이터 불러오기
     servicekey = 's+fQ9LDUrt9xJ9LSIp0R4+gJBR7eOiUpRHNKXMb6gaV844FL4oI+OYVOY+MC2Bff+Iq9bQWFeWrktswAfBtkyg=='

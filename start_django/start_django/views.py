@@ -3,12 +3,39 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.http import HttpResponse
+# pytorch 모델을 사용해서 예측값을 생성하는 경우, 
+import torch
+from torchvision import transforms
+from PIL import Image
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+from call_data.tomorrow_energy_data_get import get_energy_data
+
+# 예측 모델을 로드하는 함수 - 임의 ; 수정필요
+def load_model(model_path):
+    model = torch.load(model_path)
+    model.eval()  # 모델을 추론 모드로 설정
+    return model
+
+# 모델을 사용하여 예측을 생성하는 함수 - 임의 ; 수정필요
+def generate_prediction(model):
+    # 모델 예측 수행 , 예측값을 list형식으로 저장(근데 아래에서 코드 작성하기 쉽게 저장해야될 듯)
+    with torch.no_grad():
+        prediction = model()
+    return prediction
+
+def split_predictions(raw_prediction):
+    # 주어진 예측값과 모델의 예측 결과를 각각 변수에 저장 - 수정해야됨 엄청 많을 것이기 떄문 특히 alert가
+    alert = {"time": raw_prediction["time"], "demand": raw_prediction["demand"], "solarGen": raw_prediction["solarGen"], "windGen": raw_prediction["windGen"]}
+    solar_prediction = {"tomorrow_solar": raw_prediction["tomorrow_solar"]}
+    wind_prediction = {"tomorrow_wind": raw_prediction["tomorrow_wind"]}
+    demand_prediction = {"tomorrow_demand": raw_prediction["tomorrow_demand"]}
+    
+    return alert, solar_prediction, wind_prediction, demand_prediction
 
 
-def model(request):
-  return JsonResponse({"result":[0]*24})
-
-
+#지우면 안됨.
 def main(request):
     message = request.GET.get('abc')
     print(message)
@@ -16,14 +43,25 @@ def main(request):
     return HttpResponse("안녕?")
 
 
-### demand component
 
-# 여기에 결과값 받아와서 가공해서 보내주기 
+
+
+
+
+
+
+
+############################################################################################################
+
+### frontend에게 전달
+
+
 # time, demand, solarGen, windGen 차이값까지
 def alert_data(request):
 
-    #모델에서 데이터 받는 부분을 작성해야함
-    #
+    #모델이 예측 수행한 모듈에서 데이터 받는 부분을 작성해야함
+    model_prediction = generate_prediction(load_model('모델 경로를 새롭게 지정하세요'))
+    alert, solar_prediction, wind_prediction, demand_prediction = split_predictions(model_prediction)
     #
     #
      
@@ -46,7 +84,7 @@ def alert_data(request):
 
 def fuel_data(request):
 
-    #모델에서 데이터 받는 부분(여기 alert_data랑 같은 데이터 들어감)을 작성해야함
+    #모델이 예측 수행한 모듈에서 데이터 받는 부분(여기 alert_data랑 같은 데이터 들어감)을 작성해야함
     #
     #
     #
