@@ -34,6 +34,8 @@ h4 {
 
 .demand-wrapper {
   height: 60vh;
+  width : 110vh;
+  margin-right : 4vh;
 }
 .demand-img {
   width: 100%;
@@ -49,6 +51,8 @@ h4 {
   max-height: 60vh;
   padding-right: 2vh;
   padding-left: 2vh;
+  margin-right : 3vh;
+
 }
 
 h1 {

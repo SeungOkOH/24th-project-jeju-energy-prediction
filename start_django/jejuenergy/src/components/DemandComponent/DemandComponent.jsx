@@ -27,9 +27,14 @@ function DemandComponent() {
   const [demandPredictions, setDemandPredictions] = useState("Loading");
   const [dataSets, setDataSets] = useState([]);
   const [dataSets1, setDataSets1] = useState([]);
-  const [demandGraph, setDemandGraph] = useState("/solar_output.png");
+  const [demandGraph, setDemandGraph] = useState("");
   const [loading, setLoading] = useState("");
   const [tomorrowDate, setTomorrowDate] = useState("");
+
+  // 이미지 클릭 핸들러 함수
+  const handleImageClick = (imageUrl) => {
+    window.open(imageUrl, "_blank");
+  };
 
   useEffect(() => {
     const date = getTomorrowDate();
@@ -95,27 +100,41 @@ function DemandComponent() {
   // demand graph 받아오기
   useEffect(() => {
     const fetchGraphData = async () => {
+      setLoading(true);
       try {
-        const demandResponse = await axios.get("/demand_graph/");
-        setDemandGraph(demandResponse.data.image_url);
-        setLoading(false);
+        // Blob 형태로 이미지 데이터를 받아옵니다.
+        const demandResponse = await axios.get("/demand_graph/", {
+          responseType: "blob",
+        });
+
+        // Blob 데이터를 객체 URL로 변환합니다.
+        setDemandGraph(URL.createObjectURL(demandResponse.data));
       } catch (error) {
         console.error("Error fetching graph data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchGraphData();
   }, []);
 
+  if (loading) return <div>Loading...</div>;
+
   return (
     <div className="demand-div">
       <div className="demand-wrapper">
-        <img className="demand-img" src={demandGraph} alt="Demand Graph" />
+        <img
+          className="demand-img"
+          src={demandGraph}
+          alt="Demand Graph"
+          onClick={() => handleImageClick(demandGraph)}
+        />
       </div>
 
       <div className="alert-div">
         <h1>
-          RENEWABLE ENERGY GEN IN ASCENDING ORDER
+          RENEWABLE ENERGY GEN IN DESCENDING ORDER
           <MdAccessAlarm size="24" color="CC6D6D" />
         </h1>
         {/* 시간대 세트로 보여주기 */}
@@ -133,7 +152,12 @@ function DemandComponent() {
               WIND <br /> {Math.floor(Number(item.windGen))}
             </h4>
             <h5 className="surplus">
-              TOTAL<br/><p className="greengen">GREENGEN</p><p className="totalgen">{Math.floor(Number(item.totalRenewableGen))}</p>
+              TOTAL
+              <br />
+              <p className="greengen">GREENGEN</p>
+              <p className="totalgen">
+                {Math.floor(Number(item.totalRenewableGen))}
+              </p>
             </h5>
           </div>
         ))}
