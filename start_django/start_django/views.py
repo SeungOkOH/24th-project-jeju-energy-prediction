@@ -12,6 +12,9 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 from .call_data.tomorrow_energy_data_get import get_energy_data
 import logging
+from matplotlib import pyplot as plt
+import numpy as np
+from django.conf import settings
 
 
 # prediction값 모델로부터 가져오기!!
@@ -131,53 +134,103 @@ def fuel_data(request):
 
 # 아름답게 잘 그려진 데이터가 png 파일로 저장되어 있어야함.
 def demand_graph(request):
+    try:
+        data = get_energy_data()  # energy_data 함수 호출
+        if 'error' in data:
+            return HttpResponse(status=500, content=data['error'])
 
-    # 예측값을 시각화하고 png 파일로 디렉토리 안에 demand_graph란 이름으로 저장하는 코드 작성해야함.
-    #
-    #
-    #
+        solar_data = data['elec']  
 
-    # 이미지 파일 경로
-    image_path = os.path.join(BASE_DIR, 'demand_graph.png')  # demand_graph.png 파일이 저장된 경로로 수정할 것.
+        # 그래프 스타일 설정 및 그리기
+        plt.figure(figsize=(10, 5))
+        plt.plot(solar_data, '-o', color='#4c7380', label='Demand Prediction')
+        plt.title('Demand Predictions')
+        plt.xlabel('Time')
+        plt.ylabel('Demand (MWh)')
+        plt.legend()
+        plt.grid(True)
 
-    # 이미지 파일 읽기
-    with open(image_path, 'rb') as img_file:
-        response = HttpResponse(img_file.read(), content_type='image/png')
+        # 이미지 파일을 저장할 경로 확인 및 생성
+        static_dir = os.path.join(settings.BASE_DIR, 'static')
+        if not os.path.exists(static_dir):  
+            os.makedirs(static_dir)
 
-    return response
+        image_path = os.path.join(static_dir, 'elec_graph.png')
+        
+        plt.savefig(image_path)
+        plt.close()
 
+        # 이미지 파일 읽기 및 반환
+        with open(image_path, 'rb') as img_file:
+            return HttpResponse(img_file.read(), content_type='image/png')
+    except Exception as e:
+        return HttpResponse(status=500, content=f'Error generating elec graph: {str(e)}')
 
 ### gencomponent 
 
 def solar_graph(request):
-    # 예측값을 시각화하고 png 파일로 디렉토리 안에 solar_graph 이름으로 저장하는 코드 작성해야함.
-    #
-    #
-    #
+    try:
+        data = get_energy_data()  # energy_data 함수 호출
+        if 'error' in data:
+            return HttpResponse(status=500, content=data['error'])
 
+        solar_data = data['solar']  # 태양광 데이터 추출
 
-    # 이미지 파일 경로
-    image_path = os.path.join(BASE_DIR, 'solar_graph.png')  # 경로 수정할 것.
+        # 그래프 스타일 설정 및 그리기
+        plt.figure(figsize=(10, 5))
+        plt.plot(solar_data, '-o', color='#4c7380', label='Solar Generation')
+        plt.title('Solar Energy Generation')
+        plt.xlabel('Time')
+        plt.ylabel('Generation (MWh)')
+        plt.legend()
+        plt.grid(True)
 
-    # 이미지 파일 읽기
-    with open(image_path, 'rb') as img_file:
-        response = HttpResponse(img_file.read(), content_type='image/png')
+        # 이미지 파일을 저장할 경로 확인 및 생성
+        static_dir = os.path.join(settings.BASE_DIR, 'static')
+        if not os.path.exists(static_dir):  # static 디렉토리가 존재하지 않는 경우
+            os.makedirs(static_dir)  # 디렉토리 생성
 
-    return response
+        image_path = os.path.join(static_dir, 'solar_graph.png')
+        
+        plt.savefig(image_path)
+        plt.close()
+
+        # 이미지 파일 읽기 및 반환
+        with open(image_path, 'rb') as img_file:
+            return HttpResponse(img_file.read(), content_type='image/png')
+    except Exception as e:
+        return HttpResponse(status=500, content=f'Error generating solar graph: {str(e)}')
+
 
 def wind_graph(request):
+    try:
+        data = get_energy_data()  # energy_data 함수 호출
+        if 'error' in data:
+            return HttpResponse(status=500, content=data['error'])
 
+        solar_data = data['wind']  
 
-    # 예측값을 시각화하고 png 파일로 디렉토리 안에 wind_graph란 이름으로 저장하는 코드 작성해야함.
-    #
-    #
-    #
+        # 그래프 스타일 설정 및 그리기
+        plt.figure(figsize=(10, 5))
+        plt.plot(solar_data, '-o', color='#4c7380', label='Solar Generation')
+        plt.title('Wind Energy Generation')
+        plt.xlabel('Time')
+        plt.ylabel('Generation (MWh)')
+        plt.legend()
+        plt.grid(True)
 
-    # 이미지 파일 경로
-    image_path = os.path.join(BASE_DIR, 'wind_graph.png')  # 경로 수정할 것.
+        # 이미지 파일을 저장할 경로 확인 및 생성
+        static_dir = os.path.join(settings.BASE_DIR, 'static')
+        if not os.path.exists(static_dir):  
+            os.makedirs(static_dir)
 
-    # 이미지 파일 읽기
-    with open(image_path, 'rb') as img_file:
-        response = HttpResponse(img_file.read(), content_type='image/png')
+        image_path = os.path.join(static_dir, 'wind_graph.png')
+        
+        plt.savefig(image_path)
+        plt.close()
 
-    return response
+        # 이미지 파일 읽기 및 반환
+        with open(image_path, 'rb') as img_file:
+            return HttpResponse(img_file.read(), content_type='image/png')
+    except Exception as e:
+        return HttpResponse(status=500, content=f'Error generating wind graph: {str(e)}')
