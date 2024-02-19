@@ -5,53 +5,63 @@ import "./DemandComponent.css";
 import { MdAccessAlarm } from "react-icons/md";
 import { MdOutlineLocalFireDepartment } from "react-icons/md";
 
+function getTomorrowDate() {
+  const today = new Date(); // 현재 날짜와 시간
+  const tomorrow = new Date(today); // today 객체 복사
+  tomorrow.setDate(tomorrow.getDate() + 1); // 내일 날짜 설정
+
+  // 날짜 포맷팅: YYYY-MM-DD
+  const yyyy = tomorrow.getFullYear();
+  const mm = String(tomorrow.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작하므로 1을 더해줍니다.
+  const dd = String(tomorrow.getDate()).padStart(2, "0");
+
+  return `${yyyy}/${mm}/${dd}`;
+}
+const removeDecimal = (str) => {
+  return str.replace(/\.\d+$/, "");
+};
+
 function DemandComponent() {
   const [solarGen, setSolarGen] = useState("Loading");
   const [windGen, setWindGen] = useState("Loading");
   const [demandPredictions, setDemandPredictions] = useState("Loading");
-  const [dataSets, setDataSets] = useState([
-    { time: "14:00 pm", demand: 100, solarGen: 130, windGen: 150 },
-  ]);
-  const [dataSets1, setDataSets1] = useState([
-    { time: "13:00 pm", demand: 100, solarGen: 20, windGen: 30 },
-  ]);
+  const [dataSets, setDataSets] = useState([]);
+  const [dataSets1, setDataSets1] = useState([]);
   const [demandGraph, setDemandGraph] = useState("/solar_output.png");
   const [loading, setLoading] = useState("");
+  const [tomorrowDate, setTomorrowDate] = useState("");
 
-  //test 연결 됐는지
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/hello/");
-        console.log(response.data);
-        setLoading(response.data.message);
-      } catch (error) {
-        // Handle error
-      }
-    };
-
-    fetchData();
+    const date = getTomorrowDate();
+    setTomorrowDate(date);
   }, []);
-
   // backend에서 데이터 받아오기
   // 조건 : solar + wind가 demand보다 크면
   // {time, demand, solarGen, windGen} 형태로 보내야함.
 
-  //바로 렌더링 안되면 버튼으로 바꿔보기..
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/alert_data/");
-        const newDataSets = response.data.map((item) => ({
-          time: item.time,
-          demand: item.demand,
-          solarGen: item.solarGen,
-          windGen: item.windGen,
-        }));
-        setDataSets(newDataSets);
-        console.log(newDataSets);
+        const response = await axios.get("http://127.0.0.1:8000/alert_data/");
+        if (response.data && response.data.length > 0) {
+          const sortedData = response.data.sort((a, b) => {
+            const totalGenA = parseFloat(a.solar) + parseFloat(a.wind);
+            const totalGenB = parseFloat(b.solar) + parseFloat(b.wind);
+            return totalGenB - totalGenA;
+          });
+
+          const newDataSets = sortedData.map((item) => ({
+            time: `${item.index}:00`,
+            demand: parseFloat(item.elec),
+            solarGen: parseFloat(item.solar),
+            windGen: parseFloat(item.wind),
+            totalRenewableGen: parseFloat(item.solar) + parseFloat(item.wind),
+          }));
+
+          setDataSets(newDataSets);
+        }
       } catch (error) {
-        // Handle error
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -67,12 +77,13 @@ function DemandComponent() {
       try {
         const response = await axios.get("/fuel_data/");
         const newDataSets = response.data.map((item) => ({
-          time: item.time,
-          demand: item.demand,
-          solarGen: item.solarGen,
-          windGen: item.windGen,
+          time: `${item.index}:00`,
+          demand: item.elec,
+          solarGen: item.solar,
+          windGen: item.wind,
         }));
         setDataSets1(newDataSets);
+        console.log(newDataSets);
       } catch (error) {
         // Handle error
       }
@@ -104,25 +115,25 @@ function DemandComponent() {
 
       <div className="alert-div">
         <h1>
-          GREENGEN SURPLUS ALERT
+          RENEWABLE ENERGY GEN IN ASCENDING ORDER
           <MdAccessAlarm size="24" color="CC6D6D" />
         </h1>
         {/* 시간대 세트로 보여주기 */}
-
+        <h2 className="fortomorrow">for tomorrow ({tomorrowDate})</h2>
         {dataSets.map((item) => (
           <div key={item.time} className="data-set">
             <h3>{item.time}</h3>
             <h4>
-              DEMAND <br /> {item.demand}
+              DEMAND <br /> {Math.floor(Number(item.demand))}
             </h4>
             <h4>
-              SOLAR <br /> {item.solarGen}
+              SOLAR <br /> {Math.floor(Number(item.solarGen))}
             </h4>
             <h4>
-              WIND <br /> {item.windGen}
+              WIND <br /> {Math.floor(Number(item.windGen))}
             </h4>
             <h5 className="surplus">
-              SURPLUS <br /> {item.windGen + item.solarGen - item.demand}
+              TOTAL<br/><p className="greengen">GREENGEN</p><p className="totalgen">{Math.floor(Number(item.totalRenewableGen))}</p>
             </h5>
           </div>
         ))}
@@ -132,22 +143,26 @@ function DemandComponent() {
           FOSSIL FUEL GEN PROPOSAL
           <MdOutlineLocalFireDepartment size="24" color="C8A190" />
         </h1>
+        <h2 className="fortomorrow">for tomorrow ({tomorrowDate})</h2>
         {dataSets1.map((item) => {
           if (item.demand > item.solarGen + item.windGen) {
             return (
               <div key={item.time} className="data-set">
                 <h3>{item.time}</h3>
                 <h4>
-                  DEMAND <br /> {item.demand}
+                  DEMAND <br /> {Math.floor(Number(item.demand))}
                 </h4>
                 <h4>
-                  SOLAR <br /> {item.solarGen}
+                  SOLAR <br /> {Math.floor(Number(item.solarGen))}
                 </h4>
                 <h4>
-                  WIND <br /> {item.windGen}
+                  WIND <br /> {Math.floor(Number(item.windGen))}
                 </h4>
                 <h5 className="proposal">
-                  PROPOSAL <br /> {item.demand - item.solarGen - item.windGen}
+                  PROPOSAL <br />{" "}
+                  {Math.floor(
+                    Number(item.demand - item.solarGen - item.windGen)
+                  )}
                 </h5>
               </div>
             );

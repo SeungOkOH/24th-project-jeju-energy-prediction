@@ -64,3 +64,32 @@ h1 {
   font-weight: bold;
   text-shadow: 1.5px 1.5px 2px #000000;
 }
+
+.fortomorrow {
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.greengen {
+  color: #cc6d6d;
+  font-size: 10px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  padding-top : 1px;
+}
+
+.totalgen {
+  color: #cc6d6d;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+  margin-top : 0px;
+  padding-top : 5px;
+  padding-left : 0px;
+}
