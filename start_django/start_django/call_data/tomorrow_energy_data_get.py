@@ -12,9 +12,31 @@ from models import Windpower_MLP, LSTMwithAttn
 # GPU를 사용할 경우
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+def find_project_dir():
+    current_dir = os.getcwd()
+    # 현재 디렉토리에서 시작하여 '24th-project-jeju-energy-prediction'을 찾고,
+    # 그 안의 'start_django\start_django' 경로를 확인합니다.
+    while True:
+        if os.path.basename(current_dir) == '24th-project-jeju-energy-prediction':
+            # '24th-project-jeju-energy-prediction' 디렉토리 내부의 'start_django\start_django' 경로를 확인합니다.
+            start_django_path = os.path.join(current_dir, 'start_django', 'start_django')
+            if os.path.exists(start_django_path):
+                return start_django_path  # 이 경로가 존재한다면 반환합니다.
+            else:
+                raise FileNotFoundError("The start_django\\start_django directory was not found.")
+        current_dir = os.path.dirname(current_dir)
+        if current_dir == os.path.dirname(current_dir):  # 더 이상 상위 디렉토리가 없을 때
+            return None
+        
 def get_energy_data():
     tomorrow_df = get_data()
     
+    project_dir = find_project_dir()
+    if project_dir is None:
+        raise FileNotFoundError("The project directory was not found in the current directory tree.")
+    call_data_dir = os.path.join(project_dir, 'call_data')  # 올바른 경로를 설정
+    os.chdir(call_data_dir)  # 작업 디렉토리 변경
+
 
     elec_model_path = 'models/elec_model.pt'
     solar_model_path = 'models/solar_model.pt'

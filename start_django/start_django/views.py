@@ -10,29 +10,50 @@ from PIL import Image
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
-from call_data.tomorrow_energy_data_get import get_energy_data
+from .call_data.tomorrow_energy_data_get import get_energy_data
+import logging
 
-# 예측 모델을 로드하는 함수 - 임의 ; 수정필요
-def load_model(model_path):
-    model = torch.load(model_path)
-    model.eval()  # 모델을 추론 모드로 설정
-    return model
 
-# 모델을 사용하여 예측을 생성하는 함수 - 임의 ; 수정필요
-def generate_prediction(model):
-    # 모델 예측 수행 , 예측값을 list형식으로 저장(근데 아래에서 코드 작성하기 쉽게 저장해야될 듯)
-    with torch.no_grad():
-        prediction = model()
-    return prediction
+# prediction값 모델로부터 가져오기!!
+def energy_data():
+    logger = logging.getLogger(__name__)
 
-def split_predictions(raw_prediction):
-    # 주어진 예측값과 모델의 예측 결과를 각각 변수에 저장 - 수정해야됨 엄청 많을 것이기 떄문 특히 alert가
-    alert = {"time": raw_prediction["time"], "demand": raw_prediction["demand"], "solarGen": raw_prediction["solarGen"], "windGen": raw_prediction["windGen"]}
-    solar_prediction = {"tomorrow_solar": raw_prediction["tomorrow_solar"]}
-    wind_prediction = {"tomorrow_wind": raw_prediction["tomorrow_wind"]}
-    demand_prediction = {"tomorrow_demand": raw_prediction["tomorrow_demand"]}
+    try:
+        data = get_energy_data()
+        logger.info("Successfully retrieved energy data")
+        return data
+    except Exception as e:
+     
+     
+        logger.error(f"Error retrieving energy data: {e}")
+        return {'error': str(e)}
+#가져온 데이터 가공하기 (alert_data, fuel_data에서 사용할 것)
     
-    return alert, solar_prediction, wind_prediction, demand_prediction
+def processed_data():        
+    try:
+        json_data = energy_data()  # energy_data 함수 호출
+        if 'error' in json_data:
+            logger.error(f"Error in energy_data: {json_data['error']}")
+            return None
+        
+        # 데이터 가공 로직을 여기에 추가...
+        # elec, solar, wind 값들을 int()를 사용하여 정수로 변환
+        processed_list = [
+            {
+                "index": i + 1, 
+                "elec": int(float(elec)),  # 소수점 제거
+                "solar": int(float(solar)),  # 소수점 제거
+                "wind": int(float(wind))  # 소수점 제거
+            }
+            for i, (elec, solar, wind) in enumerate(zip(json_data['elec'], json_data['solar'], json_data['wind']))
+        ]
+        
+        return processed_list
+    except Exception as e:
+        return None
+
+
+
 
 
 #지우면 안됨.
@@ -48,9 +69,6 @@ def main(request):
 
 
 
-
-
-
 ############################################################################################################
 
 ### frontend에게 전달
@@ -58,52 +76,58 @@ def main(request):
 
 # time, demand, solarGen, windGen 차이값까지
 def alert_data(request):
+    logger = logging.getLogger(__name__)
 
-    #모델이 예측 수행한 모듈에서 데이터 받는 부분을 작성해야함
-    model_prediction = generate_prediction(load_model('모델 경로를 새롭게 지정하세요'))
-    alert, solar_prediction, wind_prediction, demand_prediction = split_predictions(model_prediction)
-    #
-    #
-     
-   # 받은 데이터 예시 (time, demand, solarGen, windGen로 구성된 리스트)
-    data_list = [
-        {"time": "12:00", "demand": 100, "solarGen": 80, "windGen": 20},
-        {"time": "13:00", "demand": 120, "solarGen": 100, "windGen": 30},
-        {"time": "14:00", "demand": 150, "solarGen": 120, "windGen": 40},
-        # 엄청 많은 데이터가 여기에 들어감
-    ]
-    filtered_data = []
+    try:
+        json_data = energy_data()  # energy_data 함수 호출
 
-    for data in data_list:
-        # demand가 solarGen과 windGen의 합보다 작은 경우만 필터링
-        if data["demand"] < data["solarGen"] + data["windGen"]:
-            filtered_data.append(data)
+        # 에러 검사: json_data가 'error' 키를 포함하는지 확인
+        if isinstance(json_data, dict) and 'error' in json_data:
+            logger.error(f"Error in energy_data: {json_data['error']}")
+            return JsonResponse({'error': json_data['error']}, status=500)
+        
+        # 데이터 가공
+        if all(key in json_data for key in ['elec', 'solar', 'wind']):  # 필수 키 존재 확인
+            processed_data = [
+                {"index": i + 1, "elec": elec, "solar": solar, "wind": wind}
+                for i, (elec, solar, wind) in enumerate(zip(json_data['elec'], json_data['solar'], json_data['wind']))
+            ]
 
-    return JsonResponse(filtered_data, safe=False)
-
+            
+        return JsonResponse(processed_data, safe=False)  # 필터링된 데이터를 JSON 형태로 반환
+    except Exception as e:
+        logger.error(f"Error processing alert_data: {e}")
+        return JsonResponse({'error': str(e)}, status=400)
+    
 
 def fuel_data(request):
 
-    #모델이 예측 수행한 모듈에서 데이터 받는 부분(여기 alert_data랑 같은 데이터 들어감)을 작성해야함
-    #
-    #
-    #
+    try:
+        json_data = energy_data()  # energy_data 함수 호출
 
-   # 받은 데이터 예시 (time, demand, solarGen, windGen로 구성된 리스트)
-    data_list = [
-        {"time": "12:00", "demand": 100, "solarGen": 80, "windGen": 10},
-        {"time": "13:00", "demand": 120, "solarGen": 100, "windGen": 30},
-        {"time": "14:00", "demand": 150, "solarGen": 120, "windGen": 40},
-        # 엄청 많은 데이터가 여기에 들어감
-    ]
-    filtered_data = []
+        # 에러 검사: json_data가 'error' 키를 포함하는지 확인
+        if isinstance(json_data, dict) and 'error' in json_data:
+            logger.error(f"Error in energy_data: {json_data['error']}")
+            return JsonResponse({'error': json_data['error']}, status=500)
+        
+        # 데이터 가공
+        if all(key in json_data for key in ['elec', 'solar', 'wind']):  # 필수 키 존재 확인
+            processed_data = [
+                {"index": i + 1, "elec": elec, "solar": solar, "wind": wind}
+                for i, (elec, solar, wind) in enumerate(zip(json_data['elec'], json_data['solar'], json_data['wind']))
+            ]
 
-    for data in data_list:
-        # demand가 solarGen과 windGen의 합보다 작은 경우만 필터링
-        if data["demand"] > data["solarGen"] + data["windGen"]:
-            filtered_data.append(data)
+            filtered_data = [
+            data for data in processed_data
+            if data["elec"] > data["solar"] + data["wind"]
+        ]
 
-    return JsonResponse(filtered_data, safe=False)
+        return JsonResponse(filtered_data, safe=False)  # 필터링된 데이터를 JSON 형태로 반환
+    except Exception as e:
+        logger.error(f"Error processing alert_data: {e}")
+        return JsonResponse({'error': str(e)}, status=400)
+    
+
 
 # 아름답게 잘 그려진 데이터가 png 파일로 저장되어 있어야함.
 def demand_graph(request):
