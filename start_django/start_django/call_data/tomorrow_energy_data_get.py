@@ -66,6 +66,8 @@ def get_energy_data():
     y_pred_solar = y_pred_solar.reshape(24)
     y_pred_wind = y_pred_wind.reshape(24)
 
+    y_pred_solar[y_pred_solar < 3] = 0
+    
     return {
         'elec': y_pred_elec.tolist(),
         'solar': y_pred_solar.tolist(),

@@ -48,6 +48,16 @@ function DemandComponent() {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/alert_data/");
+        //화석연료쪽
+        const newDataSets = response.data.map((item) => ({
+          time: `${item.index}:00`,
+          demand: item.elec,
+          solarGen: item.solar,
+          windGen: item.wind,
+        }));
+        setDataSets1(newDataSets);
+        console.log(newDataSets);
+        //내림차순 전력
         if (response.data && response.data.length > 0) {
           const sortedData = response.data.sort((a, b) => {
             const totalGenA = parseFloat(a.solar) + parseFloat(a.wind);
@@ -67,30 +77,6 @@ function DemandComponent() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // backend에서 데이터 받아오기
-  // 조건 : solar + wind가 demand보다 작으면
-  // {time, demand, solarGen, windGen} 형태로 보내야함.
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/fuel_data/");
-        const newDataSets = response.data.map((item) => ({
-          time: `${item.index}:00`,
-          demand: item.elec,
-          solarGen: item.solar,
-          windGen: item.wind,
-        }));
-        setDataSets1(newDataSets);
-        console.log(newDataSets);
-      } catch (error) {
-        // Handle error
       }
     };
 
