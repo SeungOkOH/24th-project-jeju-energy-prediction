@@ -168,52 +168,18 @@ def demand_graph(request):
 
 ### gencomponent 
 
-def solar_graph(request):
+def generate_energy_graph(request, energy_type, title):
     try:
         data = get_energy_data()  # energy_data 함수 호출
         if 'error' in data:
             return HttpResponse(status=500, content=data['error'])
 
-        solar_data = data['solar']  # 태양광 데이터 추출
+        energy_data = data[energy_type]  
 
         # 그래프 스타일 설정 및 그리기
         plt.figure(figsize=(10, 5))
-        plt.plot(solar_data, '-o', color='#4c7380', label='Solar Generation')
-        plt.title('Solar Energy Generation')
-        plt.xlabel('Time')
-        plt.ylabel('Generation (MWh)')
-        plt.legend()
-        plt.grid(True)
-
-        # 이미지 파일을 저장할 경로 확인 및 생성
-        static_dir = os.path.join(settings.BASE_DIR, 'static')
-        if not os.path.exists(static_dir):  # static 디렉토리가 존재하지 않는 경우
-            os.makedirs(static_dir)  # 디렉토리 생성
-
-        image_path = os.path.join(static_dir, 'solar_graph.png')
-        
-        plt.savefig(image_path)
-        plt.close()
-
-        # 이미지 파일 읽기 및 반환
-        with open(image_path, 'rb') as img_file:
-            return HttpResponse(img_file.read(), content_type='image/png')
-    except Exception as e:
-        return HttpResponse(status=500, content=f'Error generating solar graph: {str(e)}')
-
-
-def wind_graph(request):
-    try:
-        data = get_energy_data()  # energy_data 함수 호출
-        if 'error' in data:
-            return HttpResponse(status=500, content=data['error'])
-
-        solar_data = data['wind']  
-
-        # 그래프 스타일 설정 및 그리기
-        plt.figure(figsize=(10, 5))
-        plt.plot(solar_data, '-o', color='#4c7380', label='Solar Generation')
-        plt.title('Wind Energy Generation')
+        plt.plot(energy_data, '-o', color='#4c7380', label=f'{title} Generation')
+        plt.title(f'{title} Energy Generation')
         plt.xlabel('Time')
         plt.ylabel('Generation (MWh)')
         plt.legend()
@@ -224,7 +190,7 @@ def wind_graph(request):
         if not os.path.exists(static_dir):  
             os.makedirs(static_dir)
 
-        image_path = os.path.join(static_dir, 'wind_graph.png')
+        image_path = os.path.join(static_dir, f'{energy_type}_graph.png')
         
         plt.savefig(image_path)
         plt.close()
@@ -233,4 +199,10 @@ def wind_graph(request):
         with open(image_path, 'rb') as img_file:
             return HttpResponse(img_file.read(), content_type='image/png')
     except Exception as e:
-        return HttpResponse(status=500, content=f'Error generating wind graph: {str(e)}')
+        return HttpResponse(status=500, content=f'Error generating {title.lower()} graph: {str(e)}')
+
+def solar_graph(request):
+    return generate_energy_graph(request, 'solar', 'Solar')
+
+def wind_graph(request):
+    return generate_energy_graph(request, 'wind', 'Wind')
