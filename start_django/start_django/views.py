@@ -15,6 +15,9 @@ import logging
 from matplotlib import pyplot as plt
 import numpy as np
 from django.conf import settings
+import matplotlib
+matplotlib.use('Agg')
+
 
 
 # prediction값 모델로부터 가져오기!!
