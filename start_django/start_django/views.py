@@ -14,8 +14,10 @@ from .call_data.tomorrow_energy_data_get import get_energy_data
 import logging
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 from django.conf import settings
 import matplotlib
+import csv
 matplotlib.use('Agg')
 
 
@@ -209,3 +211,39 @@ def solar_graph(request):
 
 def wind_graph(request):
     return generate_energy_graph(request, 'wind', 'Wind')
+
+### DemandComponent ####
+def save_solar_csv_file(request, energy_type, title):
+    try:
+        data = get_energy_data()
+        if 'error' in data:
+            return HttpResponse(status = 500, content = data['error'])
+        
+        energy_data = data[energy_type]
+
+        # Save dataframe as csv file
+        df = pd.DataFrame(
+            [[t+':00' for t in range(1, 25)], energy_data],
+            columns = ['Time', f'{title} Power (MWh)']
+        )
+
+        static_dir = os.path.join(settings.BASE_DIR, 'static')
+        if not os.path.exists(static_dir):
+            os.makedirs(static_dir)
+
+        csv_path = os.path.join(static_dir, f'{energy_type}_csv_file.csv')
+
+        df.to_csv(csv_path)
+
+        # Return csv file
+        with open(csv_path) as csv_file:
+            return HttpResponse(csv.reader(csv_file), content_type = 'text/csv')
+    
+    except Exception as e:
+        return HttpResponse(status = 500, content = f'Error generating {title.lower()} csv_file: {str(e)}')
+
+def solar_csv(request):
+    return save_solar_csv_file(request, 'solar', 'Solar')
+
+def wind_csv(request):
+    return save_solar_csv_file(request, 'wind', 'Wind')
