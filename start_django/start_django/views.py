@@ -248,3 +248,35 @@ def solar_csv(request):
 
 def wind_csv(request):
     return save_csv_file(request, 'wind', 'Wind')
+
+def demand_csv(request):
+    try:
+        data = get_energy_data()
+        if 'error' in data:
+            return HttpResponse(status = 500, content = data['error'])
+        
+        demand, solar, wind = data['elec'], data['solar'], data['wind']
+        totalRenewableGen = [float(solar[i]) + float(wind[i]) for i in range(len(solar))]
+        times = [str(t) + ':00' for t in range(1, len(wind)+1)]
+
+        df = pd.DataFrame({
+            'Time': times,
+            'Demand (MWh)': demand,
+            'Solar Power (MWh)': solar,
+            'Wind Power (MWh)': wind,
+            'Total Renewable Energy (MWh)': totalRenewableGen,
+        })
+
+        static_dir = os.path.join(settings.BASE_DIR, 'static')
+        if not os.path.exists(static_dir):
+            os.makedirs(static_dir)
+
+        csv_path = os.path.join(static_dir, 'demand_csv_file.csv')
+
+        df.to_csv(csv_path, header = True, index = False)
+
+        with open(csv_path, 'rb') as csv_file:
+            return HttpResponse(csv_file.read(), content_type = 'text/csv')
+        
+    except Exception as e:
+        return HttpResponse(status = 500, content = f'Error generating demand csv_file: {str(e)}')

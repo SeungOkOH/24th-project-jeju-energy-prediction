@@ -14,6 +14,7 @@ function ButtonComponent() {
   const [loading, setLoading] = useState(true);
   const [solarCSV, setsolarCSV] = useState(null);
   const [windCSV, setwindCSV] = useState(null);
+  const [demandCSV, setdemandCSV] = useState(null);
   
   const handlesolarBtnClick = () => {
     const link = document.createElement('a');
@@ -33,6 +34,15 @@ function ButtonComponent() {
     link.parentNode.removeChild(link);
   };
 
+  const handledemandBtnClick = () => {
+    const link = document.createElement('a');
+    link.href = demandCSV;
+    link.setAttribute('download', 'demand_prediction.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,9 +52,13 @@ function ButtonComponent() {
         const response_wind = await axios.get('/wind_csv/', {
           responseType: "blob",
         });
+        const response_demand = await axios.get('/demand_csv/', {
+          responseType: "blob",
+        })
 
         setsolarCSV(URL.createObjectURL(response_solar.data));
         setwindCSV(URL.createObjectURL(response_wind.data));
+        setdemandCSV(URL.createObjectURL(response_demand.data));
 
         setLoading(false);
       }
@@ -98,7 +112,7 @@ function ButtonComponent() {
             </p>
           </div>
         </button>
-        <button className="button-" disabled = {loading}>
+        <button className="button-" onClick = {() => handledemandBtnClick()} disabled = {loading}>
           <IoNewspaperOutline size="24" color="616161" />
           <div className="button-detail">
             <p className="button-p1">MANAGEMENT {!loading || "(Preparing...)"}</p>
