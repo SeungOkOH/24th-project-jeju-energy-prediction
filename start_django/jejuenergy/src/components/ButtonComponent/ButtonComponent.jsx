@@ -12,25 +12,39 @@ import axios from "axios";
 function ButtonComponent() {
   
   const [loading, setLoading] = useState(true);
+  const [solarCSV, setsolarCSV] = useState(null);
+  const [windCSV, setwindCSV] = useState(null);
   
-  const handleBtnClick = (fileUrl) => {
-    fetch(fileUrl).then((response) => {
-      response.blob().then((blob) => {
-        const fileURL = window.URL.createObjectURL(blob);
-            
-        let alink = document.createElement("a");
-        alink.href = fileURL;
-        alink.download = fileURL;
-        alink.click();
-      });
-    });
+  const handlesolarBtnClick = () => {
+    const link = document.createElement('a');
+    link.href = solarCSV;
+    link.setAttribute('download', 'solar_prediction.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+  };
+
+  const handlewindBtnClick = () => {
+    const link = document.createElement('a');
+    link.href = windCSV;
+    link.setAttribute('download', 'wind_prediction.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response_solar = await axios.get('http://127.0.0.1:8000/solar_csv');
-        const response_wind = await axios.get('http://127.0.0.1:8000/wind_csv');
+        const response_solar = await axios.get('/solar_csv/', {
+          responseType: "blob",
+        });
+        const response_wind = await axios.get('/wind_csv/', {
+          responseType: "blob",
+        });
+
+        setsolarCSV(URL.createObjectURL(response_solar.data));
+        setwindCSV(URL.createObjectURL(response_wind.data));
 
         setLoading(false);
       }
@@ -46,10 +60,10 @@ function ButtonComponent() {
     <div className="button-div">
       <p className="button-p">MAIN CONTENTS</p>
       <div className="buttons">
-        <button className="button-" onclick = {() => handleBtnClick('')} disabled = {loading}>
+        <button className="button-" onClick = {() => handlesolarBtnClick('')} disabled = {loading}>
           <GoSun size="24" color="FEBB50" />
           <div className="button-detail">
-            <p className="button-p1">TOMORROW FORECAST</p>
+            <p className="button-p1">TOMORROW FORECAST {!loading || "(Preparing...)"}</p>
             <p className="button-p2">
               SOLAR POWER
               <br />
@@ -57,10 +71,10 @@ function ButtonComponent() {
             </p>
           </div>
         </button>
-        <button className="button-" onclick = {() => handleBtnClick()} disabled = {loading}>
+        <button className="button-" onClick = {() => handlewindBtnClick()} disabled = {loading}>
           <LuWind size="24" color="2D77E7" />
           <div className="button-detail">
-            <p className="button-p1">TOMORROW FORECAST</p>
+            <p className="button-p1">TOMORROW FORECAST {!loading || "(Preparing...)"}</p>
             <p className="button-p2">
               WIND POWER
               <br />
@@ -84,10 +98,10 @@ function ButtonComponent() {
             </p>
           </div>
         </button>
-        <button className="button-" onclick = {() => handleBtnClick()} disabled = {loading}>
+        <button className="button-" disabled = {loading}>
           <IoNewspaperOutline size="24" color="616161" />
           <div className="button-detail">
-            <p className="button-p1">MANAGEMENT</p>
+            <p className="button-p1">MANAGEMENT {!loading || "(Preparing...)"}</p>
             <p className="button-p2">
               DEMAND FORECAST
               <br />& GREENGEN ANALYZER
