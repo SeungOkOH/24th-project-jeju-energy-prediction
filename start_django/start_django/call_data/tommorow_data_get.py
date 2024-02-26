@@ -14,7 +14,7 @@ def get_data():
     formatted_tomorrow = tomorrow.strftime('%Y%m%d')
     
     # 날씨 데이터 불러오기
-    servicekey = 's+fQ9LDUrt9xJ9LSIp0R4+gJBR7eOiUpRHNKXMb6gaV844FL4oI+OYVOY+MC2Bff+Iq9bQWFeWrktswAfBtkyg=='
+    servicekey = ''
     url= 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
 
     queryParams = '?' + urllib.parse.urlencode(
