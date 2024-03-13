@@ -1,0 +1,99 @@
+.demand-div {
+  display: flex;
+  margin-top: 15px;
+  padding-left: 5vh;
+  padding-right: 5vh;
+  justify-content: space-between;
+  margin-bottom: 0;
+  padding-bottom: 5vh;
+}
+
+.data-set {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+h4 {
+  font-size: 15px;
+  font-weight: bold;
+  color: white;
+}
+
+.surplus {
+  color: #cc6d6d;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+}
+
+.demand-wrapper {
+  height: 60vh;
+  width : 110vh;
+  margin-right : 4vh;
+}
+.demand-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+}
+
+.alert-div {
+  border: 2px solid white;
+  border-radius: 20px;
+  width: 55vh;
+  overflow-y: auto;
+  max-height: 60vh;
+  padding-right: 2vh;
+  padding-left: 2vh;
+  margin-right : 3vh;
+
+}
+
+h1 {
+  padding-top: 10px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+}
+
+.proposal {
+  color: #c8a190;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+}
+
+.fortomorrow {
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.greengen {
+  color: #cc6d6d;
+  font-size: 10px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  padding-top : 1px;
+}
+
+.totalgen {
+  color: #cc6d6d;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 2px #000000;
+  margin-top : 0px;
+  padding-top : 5px;
+  padding-left : 0px;
+}
